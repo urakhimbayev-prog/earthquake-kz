@@ -1,0 +1,136 @@
+const BBOX = { minlat: 40, maxlat: 56, minlon: 46, maxlon: 88 };
+const REFRESH_MINUTES = 10;
+const TIME_OFFSET = 6;
+
+function buildUrl(days) {
+  const now = new Date();
+  const end = now.toISOString().split('.')[0];
+  const start = new Date(now.getTime() - days * 86400000)
+    .toISOString().split('.')[0];
+
+  return "https://service.earthscope.org/fdsnws/event/1/query?" +
+    new URLSearchParams({
+      format: "geojson",
+      starttime: start,
+      endtime: end,
+      minlat: BBOX.minlat,
+      maxlat: BBOX.maxlat,
+      minlon: BBOX.minlon,
+      maxlon: BBOX.maxlon,
+      minmagnitude: "1.0"
+    });
+}
+
+async function loadData(days) {
+  const resp = await fetch(buildUrl(days));
+  const data = await resp.json();
+  return data.features || [];
+}
+
+function toKZTime(utcMs) {
+  const d = new Date(utcMs + TIME_OFFSET * 3600000);
+  return d.toISOString().replace("T", " ").replace("Z", "");
+}
+
+function renderTable(containerId, events) {
+  let html = `
+    <table>
+      <thead>
+        <tr>
+          <th>Дата (KZ)</th>
+          <th>Магнитуда</th>
+          <th>Глубина</th>
+          <th>Широта</th>
+          <th>Долгота</th>
+          <th>Место</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  events.forEach(f => {
+    const p = f.properties;
+    const c = f.geometry.coordinates;
+
+    html += `
+      <tr>
+        <td>${toKZTime(p.time)}</td>
+        <td>${p.mag?.toFixed(1) || ""}</td>
+        <td>${c[2]?.toFixed(1) || ""}</td>
+        <td>${c[1]?.toFixed(3) || ""}</td>
+        <td>${c[0]?.toFixed(3) || ""}</td>
+        <td>${p.place || ""}</td>
+      </tr>
+    `;
+  });
+
+  html += "</tbody></table>";
+  document.getElementById(containerId).innerHTML = html;
+}
+
+function renderMap(containerId, events) {
+  const map = L.map(containerId).setView([48, 68], 4);
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+
+  const layer = L.layerGroup().addTo(map);
+  const bounds = [];
+
+  events.forEach(f => {
+    const p = f.properties;
+    const c = f.geometry.coordinates;
+    const lat = c[1], lon = c[0];
+
+    const marker = L.circleMarker([lat, lon], {
+      radius: Math.max(4, p.mag * 1.5),
+      color: "#d9534f",
+      fillColor: "#d9534f",
+      fillOpacity: 0.7
+    });
+
+    marker.bindPopup(`
+      <b>Магнитуда:</b> ${p.mag}<br>
+      <b>Дата (KZ):</b> ${toKZTime(p.time)}<br>
+      <b>Глубина:</b> ${c[2]} км<br>
+      <b>Координаты:</b> ${lat}, ${lon}<br>
+      <b>Место:</b> ${p.place}
+    `);
+
+    marker.addTo(layer);
+    bounds.push([lat, lon]);
+  });
+
+  if (bounds.length) map.fitBounds(bounds, { padding: [20, 20] });
+}
+
+async function updateAll() {
+  const magMin = parseFloat(document.getElementById("mag-filter").value);
+
+  const data24 = (await loadData(1)).filter(f => f.properties.mag >= magMin);
+  const data7 = (await loadData(7)).filter(f => f.properties.mag >= magMin);
+  const data30 = (await loadData(30)).filter(f => f.properties.mag >= magMin);
+
+  renderTable("table-24h", data24);
+  renderTable("table-7d", data7);
+  renderTable("table-30d", data30);
+
+  renderMap("map-24h", data24);
+  renderMap("map-7d", data7);
+  renderMap("map-30d", data30);
+}
+
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+
+    btn.classList.add("active");
+    document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
+  });
+});
+
+document.getElementById("mag-filter").addEventListener("change", updateAll);
+
+setInterval(updateAll, REFRESH_MINUTES * 60000);
+
+updateAll();
