@@ -1,4 +1,9 @@
-const BBOX = { minlat: 40, maxlat: 56, minlon: 46, maxlon: 88 };
+const BBOX = {
+  minlat: 35,
+  maxlat: 56,
+  minlon: 46,
+  maxlon: 95
+};
 const REFRESH_MINUTES = 10;
 const TIME_OFFSET = 6;
 
