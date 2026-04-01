@@ -85,8 +85,6 @@ function renderTable(containerId, events) {
 // Карта MapLibre
 function renderMap(containerId, events) {
   const container = document.getElementById(containerId);
-
-  // ВАЖНО: очистить контейнер перед созданием карты
   container.innerHTML = "";
 
   const map = new maplibregl.Map({
@@ -97,61 +95,46 @@ function renderMap(containerId, events) {
   });
 
   map.on("load", () => {
-    map.resize(); // критично для вкладок
+    map.resize();
 
+    // Источник без кластеризации
     map.addSource("eq", {
-  type: "geojson",
-  data: {
-    type: "FeatureCollection",
-    features: events.map(f => ({
-      type: "Feature",
-      geometry: f.geometry,
-      properties: {
-        mag: f.properties.mag,
-        place: f.properties.place,
-        time: f.properties.time,
-        depth: f.geometry.coordinates[2]
+      type: "geojson",
+      data: {
+        type: "FeatureCollection",
+        features: events.map(f => ({
+          type: "Feature",
+          geometry: f.geometry,
+          properties: {
+            mag: f.properties.mag,
+            place: f.properties.place,
+            time: f.properties.time,
+            depth: f.geometry.coordinates[2]
+          }
+        }))
       }
-    }))
-  },
-  cluster: true,
-  clusterRadius: 50
-});
+    });
 
+    // Обычные точки
     map.addLayer({
-      id: "clusters",
+      id: "eq-points",
       type: "circle",
       source: "eq",
-      filter: ["has", "point_count"],
       paint: {
         "circle-color": "#d9534f",
-        "circle-radius": ["step", ["get", "point_count"], 15, 50, 20, 100, 30]
+        "circle-radius": [
+          "interpolate",
+          ["linear"],
+          ["get", "mag"],
+          0, 4,
+          5, 10
+        ],
+        "circle-opacity": 0.8
       }
     });
 
-    map.addLayer({
-      id: "cluster-count",
-      type: "symbol",
-      source: "eq",
-      filter: ["has", "point_count"],
-      layout: {
-        "text-field": "{point_count_abbreviated}",
-        "text-size": 12
-      }
-    });
-
-    map.addLayer({
-      id: "unclustered",
-      type: "circle",
-      source: "eq",
-      filter: ["!", ["has", "point_count"]],
-      paint: {
-        "circle-color": "#d9534f",
-        "circle-radius": 6
-      }
-    });
-
-    map.on("click", "unclustered", e => {
+    // Popup
+    map.on("click", "eq-points", e => {
       const f = e.features[0];
       const p = f.properties;
       const c = f.geometry.coordinates;
@@ -161,7 +144,7 @@ function renderMap(containerId, events) {
         .setHTML(`
           <b>Магнитуда:</b> ${p.mag}<br>
           <b>Дата (KZ):</b> ${toKZTime(p.time)}<br>
-          <b>Глубина:</b> ${c[2]} км<br>
+          <b>Глубина:</b> ${p.depth} км<br>
           <b>Координаты:</b> ${c[1]}, ${c[0]}<br>
           <b>Место:</b> ${p.place}
         `)
