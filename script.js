@@ -19,7 +19,11 @@ function buildUrl(days, minMag) {
       maxlat: BBOX.maxlat,
       minlon: BBOX.minlon,
       maxlon: BBOX.maxlon,
-      minmagnitude: minMag
+      minmagnitude: minMag,
+      orderby: "time",
+      limit: 200,
+      includeallorigins: true,
+      includeallmagnitudes: true
     });
 }
 
