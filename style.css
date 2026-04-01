@@ -5,6 +5,7 @@ body {
   margin: 0;
   padding: 0;
   background: #f5f5f5;
+  color: #222;
 }
 
 #eq-app {
@@ -20,7 +21,7 @@ h2 {
   margin-top: 0;
   font-size: 26px;
   text-align: center;
-  color: #333;
+  color: #222;
 }
 
 /* ====== ВКЛАДКИ ====== */
@@ -40,23 +41,12 @@ h2 {
   transition: 0.2s;
   font-weight: 600;
   text-align: center;
-}
-
-.tab-btn:hover {
-  background: #ccc;
+  font-size: 15px;
 }
 
 .tab-btn.active {
   background: #058EAC;
   color: white;
-}
-
-.tab-content {
-  display: none;
-}
-
-.tab-content.active {
-  display: block;
 }
 
 /* ====== КАРТА ====== */
@@ -75,18 +65,20 @@ table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 10px;
-  font-size: 14px;
+  font-size: 15px;
+  color: #222;
 }
 
 th, td {
-  padding: 8px;
-  border-bottom: 1px solid #ddd;
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
   text-align: left;
 }
 
 th {
   background: #eee;
   font-weight: bold;
+  font-size: 15px;
 }
 
 /* ====== МОБИЛЬНАЯ АДАПТАЦИЯ ====== */
@@ -111,23 +103,23 @@ th {
 
   .tab-btn {
     flex: 1 1 30%;
-    padding: 10px 0;
-    font-size: 14px;
+    padding: 12px 0;
+    font-size: 15px;
   }
 
   .map {
-    height: 320px;
+    height: 330px;
   }
 
   table {
-    font-size: 12px;
+    font-size: 14px;
     display: block;
     overflow-x: auto;
     white-space: nowrap;
   }
 
   th, td {
-    padding: 6px;
+    padding: 8px;
   }
 }
 
@@ -136,13 +128,13 @@ th {
 @media (max-width: 420px) {
 
   h2 {
-    font-size: 19px;
+    font-size: 20px;
   }
 
   .tab-btn {
     flex: 1 1 100%;
-    padding: 9px 0;
-    font-size: 13px;
+    padding: 12px 0;
+    font-size: 14px;
   }
 
   .map {
@@ -150,11 +142,15 @@ th {
   }
 
   table {
-    font-size: 11px;
+    font-size: 13px;
+  }
+
+  th, td {
+    padding: 7px;
   }
 }
 
-/* ====== ТЁМНАЯ ТЕМА (автоматически по системе) ====== */
+/* ====== ТЁМНАЯ ТЕМА ====== */
 
 @media (prefers-color-scheme: dark) {
 
@@ -177,10 +173,11 @@ th {
     color: #ddd;
   }
 
-  .tab-btn.active {
-    background: #d9534f;
+ .tab-btn.active {
+    background: #058EAC;
     color: white;
   }
+
 
   table {
     color: #eee;
