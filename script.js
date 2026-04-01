@@ -87,14 +87,14 @@ function renderTable(containerId, events) {
   document.getElementById(containerId).innerHTML = html;
 }
 
-// Карта с кластеризацией
+// Карта (без кластеризации — как в рабочем варианте)
 function renderMap(containerId, events) {
   const map = L.map(containerId).setView([48, 68], 4);
 
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
 
-  // Кластеризация
-  const cluster = L.markerClusterGroup();
+  const layer = L.layerGroup().addTo(map);
+  const bounds = [];
 
   events.forEach(f => {
     const p = f.properties;
@@ -116,13 +116,14 @@ function renderMap(containerId, events) {
       <b>Место:</b> ${p.place}
     `);
 
-    cluster.addLayer(marker);
+    marker.addTo(layer);
+    bounds.push([lat, lon]);
   });
 
-  map.addLayer(cluster);
+  if (bounds.length) map.fitBounds(bounds, { padding: [20, 20] });
 }
 
-// Обновление (сначала карта, потом таблица)
+// Обновление (сначала карта → потом таблица)
 async function updateAll() {
   const magMin = parseFloat(document.getElementById("mag-filter").value);
 
