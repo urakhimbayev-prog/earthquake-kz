@@ -1,27 +1,51 @@
+/* ====== ГЛОБАЛЬНЫЙ ШРИФТ SF PRO ====== */
+
+* {
+  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont,
+               "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+}
+
 /* ====== БАЗОВЫЙ СТИЛЬ ====== */
 
 body {
-  font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
-  background: #f5f5f5;
-  color: #222;
+  background: #f2f2f2;
+  color: #1a1a1a;
 }
 
 #eq-app {
   max-width: 900px;
   margin: 20px auto;
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  background: #ffffff;
+  padding: 22px;
+  border-radius: 14px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
 }
 
 h2 {
   margin-top: 0;
-  font-size: 26px;
+  font-size: 28px;
   text-align: center;
+  color: #111;
+  font-weight: 700;
+}
+
+/* ====== ФИЛЬТР ====== */
+
+label {
+  font-size: 16px;
+  font-weight: 600;
   color: #222;
+}
+
+select {
+  padding: 8px 12px;
+  font-size: 15px;
+  border-radius: 6px;
+  border: 1px solid #bbb;
+  margin-left: 6px;
+  background: #fff;
 }
 
 /* ====== ВКЛАДКИ ====== */
@@ -29,34 +53,49 @@ h2 {
 .tabs {
   display: flex;
   gap: 10px;
-  margin: 15px 0;
+  margin: 18px 0;
 }
 
 .tab-btn {
-  padding: 10px 16px;
-  background: #ddd;
+  padding: 12px 18px;
+  background: #e0e0e0;
   border-radius: 8px;
   cursor: pointer;
   user-select: none;
   transition: 0.2s;
   font-weight: 600;
   text-align: center;
-  font-size: 15px;
+  font-size: 16px;
+  color: #333;
 }
 
+.tab-btn:hover {
+  background: #d0d0d0;
+}
+
+/* Активный таб */
 .tab-btn.active {
-  background: #058EAC;
-  color: white;
+  background-color: #058EAC !important;
+  color: #ffffff !important;
+  border-color: #058EAC !important;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
 }
 
 /* ====== КАРТА ====== */
 
 .map {
   width: 100%;
-  height: 420px;
-  border-radius: 10px;
+  height: 430px;
+  border-radius: 12px;
   overflow: hidden;
-  margin-bottom: 15px;
+  margin-bottom: 18px;
 }
 
 /* ====== ТАБЛИЦА ====== */
@@ -64,21 +103,21 @@ h2 {
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 10px;
-  font-size: 15px;
-  color: #222;
+  margin-top: 12px;
+  font-size: 16px;
+  color: #111;
 }
 
 th, td {
-  padding: 10px;
-  border-bottom: 1px solid #ccc;
+  padding: 10px 12px;
+  border-bottom: 1px solid #d6d6d6;
   text-align: left;
 }
 
 th {
-  background: #eee;
-  font-weight: bold;
-  font-size: 15px;
+  background: #f0f0f0;
+  font-weight: 700;
+  font-size: 16px;
 }
 
 /* ====== МОБИЛЬНАЯ АДАПТАЦИЯ ====== */
@@ -86,18 +125,18 @@ th {
 @media (max-width: 768px) {
 
   #eq-app {
-    padding: 12px;
+    padding: 14px;
     margin: 0;
     border-radius: 0;
   }
 
   h2 {
-    font-size: 22px;
+    font-size: 24px;
   }
 
   .tabs {
     flex-wrap: wrap;
-    gap: 6px;
+    gap: 8px;
     justify-content: center;
   }
 
@@ -112,14 +151,14 @@ th {
   }
 
   table {
-    font-size: 14px;
+    font-size: 15px;
     display: block;
     overflow-x: auto;
     white-space: nowrap;
   }
 
   th, td {
-    padding: 8px;
+    padding: 9px;
   }
 }
 
@@ -128,7 +167,7 @@ th {
 @media (max-width: 420px) {
 
   h2 {
-    font-size: 20px;
+    font-size: 21px;
   }
 
   .tab-btn {
@@ -142,11 +181,11 @@ th {
   }
 
   table {
-    font-size: 13px;
+    font-size: 14px;
   }
 
   th, td {
-    padding: 7px;
+    padding: 8px;
   }
 }
 
@@ -155,12 +194,12 @@ th {
 @media (prefers-color-scheme: dark) {
 
   body {
-    background: #1b1b1b;
-    color: #eee;
+    background: #121212;
+    color: #eaeaea;
   }
 
   #eq-app {
-    background: #2a2a2a;
+    background: #1e1e1e;
     box-shadow: none;
   }
 
@@ -168,26 +207,35 @@ th {
     color: #fff;
   }
 
-  .tab-btn {
-    background: #444;
+  label {
     color: #ddd;
   }
 
- .tab-btn.active {
-    background: #058EAC;
-    color: white;
+  select {
+    background: #2a2a2a;
+    color: #eee;
+    border: 1px solid #555;
   }
 
+  .tab-btn {
+    background: #3a3a3a;
+    color: #ddd;
+  }
+
+  .tab-btn.active {
+    background-color: #058EAC !important;
+    color: #fff !important;
+  }
 
   table {
     color: #eee;
   }
 
   th {
-    background: #444;
+    background: #333;
   }
 
   td {
-    border-bottom: 1px solid #555;
+    border-bottom: 1px solid #444;
   }
 }
