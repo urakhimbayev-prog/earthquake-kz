@@ -1,14 +1,14 @@
 const BBOX = {
-  minlat: 35,
-  maxlat: 56,
-  minlon: 46,
-  maxlon: 95
+  minlat: 20,
+  maxlat: 60,
+  minlon: 40,
+  maxlon: 110
 };
 
 const REFRESH_MINUTES = 10;
 const TIME_OFFSET = 6;
 
-// Формирование URL для USGS GeoJSON
+// Формирование URL
 function buildUrl(days, minMag) {
   const now = new Date();
   const end = now.toISOString().split('.')[0];
@@ -33,18 +33,13 @@ function buildUrl(days, minMag) {
 // Загрузка данных
 async function loadData(days, minMag) {
   const url = buildUrl(days, minMag);
-
   const response = await fetch(url);
-  if (!response.ok) {
-    console.error("API error:", await response.text());
-    return [];
-  }
-
+  if (!response.ok) return [];
   const json = await response.json();
   return json.features || [];
 }
 
-// Перевод времени в KZ
+// Время KZ
 function toKZTime(utcMs) {
   const d = new Date(utcMs + TIME_OFFSET * 3600000);
   return d.toISOString().replace("T", " ").replace("Z", "");
@@ -87,56 +82,94 @@ function renderTable(containerId, events) {
   document.getElementById(containerId).innerHTML = html;
 }
 
-// Карта (без кластеризации — как в рабочем варианте)
+// Карта MapLibre
 function renderMap(containerId, events) {
-  const map = L.map(containerId).setView([48, 68], 4);
-
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
-
-  const layer = L.layerGroup().addTo(map);
-  const bounds = [];
-
-  events.forEach(f => {
-    const p = f.properties;
-    const c = f.geometry.coordinates;
-    const lat = c[1], lon = c[0];
-
-    const marker = L.circleMarker([lat, lon], {
-      radius: Math.max(4, p.mag * 1.5),
-      color: "#d9534f",
-      fillColor: "#d9534f",
-      fillOpacity: 0.7
-    });
-
-    marker.bindPopup(`
-      <b>Магнитуда:</b> ${p.mag}<br>
-      <b>Дата (KZ):</b> ${toKZTime(p.time)}<br>
-      <b>Глубина:</b> ${c[2]} км<br>
-      <b>Координаты:</b> ${lat}, ${lon}<br>
-      <b>Место:</b> ${p.place}
-    `);
-
-    marker.addTo(layer);
-    bounds.push([lat, lon]);
+  const map = new maplibregl.Map({
+    container: containerId,
+    style: "https://demotiles.maplibre.org/style.json",
+    center: [70, 40],
+    zoom: 3
   });
 
-  if (bounds.length) map.fitBounds(bounds, { padding: [20, 20] });
+  map.on("load", () => {
+    map.addSource("eq", {
+      type: "geojson",
+      data: {
+        type: "FeatureCollection",
+        features: events
+      },
+      cluster: true,
+      clusterRadius: 50
+    });
+
+    // Кластеры
+    map.addLayer({
+      id: "clusters",
+      type: "circle",
+      source: "eq",
+      filter: ["has", "point_count"],
+      paint: {
+        "circle-color": "#d9534f",
+        "circle-radius": ["step", ["get", "point_count"], 15, 50, 20, 100, 30]
+      }
+    });
+
+    // Число в кластере
+    map.addLayer({
+      id: "cluster-count",
+      type: "symbol",
+      source: "eq",
+      filter: ["has", "point_count"],
+      layout: {
+        "text-field": "{point_count_abbreviated}",
+        "text-size": 12
+      }
+    });
+
+    // Одиночные точки
+    map.addLayer({
+      id: "unclustered",
+      type: "circle",
+      source: "eq",
+      filter: ["!", ["has", "point_count"]],
+      paint: {
+        "circle-color": "#d9534f",
+        "circle-radius": 6
+      }
+    });
+
+    // Popup
+    map.on("click", "unclustered", e => {
+      const f = e.features[0];
+      const p = f.properties;
+      const c = f.geometry.coordinates;
+
+      new maplibregl.Popup()
+        .setLngLat(c)
+        .setHTML(`
+          <b>Магнитуда:</b> ${p.mag}<br>
+          <b>Дата (KZ):</b> ${toKZTime(p.time)}<br>
+          <b>Глубина:</b> ${c[2]} км<br>
+          <b>Координаты:</b> ${c[1]}, ${c[0]}<br>
+          <b>Место:</b> ${p.place}
+        `)
+        .addTo(map);
+    });
+  });
 }
 
-// Обновление (сначала карта → потом таблица)
+// Обновление
 async function updateAll() {
   const magMin = parseFloat(document.getElementById("mag-filter").value);
 
-  const data24 = (await loadData(1, magMin)).filter(f => f.properties.mag >= magMin);
-  const data7  = (await loadData(7, magMin)).filter(f => f.properties.mag >= magMin);
-  const data30 = (await loadData(30, magMin)).filter(f => f.properties.mag >= magMin);
+  const data24 = await loadData(1, magMin);
+  const data7 = await loadData(7, magMin);
+  const data30 = await loadData(30, magMin);
 
-  // СНАЧАЛА КАРТА
   renderMap("map-24h", data24);
   renderMap("map-7d", data7);
   renderMap("map-30d", data30);
 
-  // ПОТОМ ТАБЛИЦА
   renderTable("table-24h", data24);
   renderTable("table-7d", data7);
   renderTable("table-30d", data30);
