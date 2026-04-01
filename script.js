@@ -4,6 +4,7 @@ const BBOX = {
   minlon: 46,
   maxlon: 95
 };
+
 const REFRESH_MINUTES = 10;
 const TIME_OFFSET = 6;
 
@@ -86,14 +87,14 @@ function renderTable(containerId, events) {
   document.getElementById(containerId).innerHTML = html;
 }
 
-// Карта
+// Карта с кластеризацией
 function renderMap(containerId, events) {
   const map = L.map(containerId).setView([48, 68], 4);
 
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
 
   // Кластеризация
-  const layer = L.markerClusterGroup();
+  const cluster = L.markerClusterGroup();
 
   events.forEach(f => {
     const p = f.properties;
@@ -115,13 +116,13 @@ function renderMap(containerId, events) {
       <b>Место:</b> ${p.place}
     `);
 
-    layer.addLayer(marker);
+    cluster.addLayer(marker);
   });
 
-  map.addLayer(layer);
+  map.addLayer(cluster);
 }
 
-// Обновление
+// Обновление (сначала карта, потом таблица)
 async function updateAll() {
   const magMin = parseFloat(document.getElementById("mag-filter").value);
 
@@ -129,13 +130,15 @@ async function updateAll() {
   const data7  = (await loadData(7, magMin)).filter(f => f.properties.mag >= magMin);
   const data30 = (await loadData(30, magMin)).filter(f => f.properties.mag >= magMin);
 
-  renderTable("table-24h", data24);
-  renderTable("table-7d", data7);
-  renderTable("table-30d", data30);
-
+  // СНАЧАЛА КАРТА
   renderMap("map-24h", data24);
   renderMap("map-7d", data7);
   renderMap("map-30d", data30);
+
+  // ПОТОМ ТАБЛИЦА
+  renderTable("table-24h", data24);
+  renderTable("table-7d", data7);
+  renderTable("table-30d", data30);
 }
 
 // Вкладки
