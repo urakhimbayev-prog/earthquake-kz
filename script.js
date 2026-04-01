@@ -1,8 +1,8 @@
 const BBOX = {
-  minlat: 35,
-  maxlat: 56,
-  minlon: 46,
-  maxlon: 95
+  minlat: 20,
+  maxlat: 60,
+  minlon: 40,
+  maxlon: 110
 };
 
 const REFRESH_MINUTES = 10;
