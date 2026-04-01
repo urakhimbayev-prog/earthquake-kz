@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Сейсмическая активность Казахстана</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+
+<body>
+  <div id="eq-app">
+    <h2>Сейсмическая активность Казахстана</h2>
+
+    <label>Минимальная магнитуда:</label>
+    <select id="mag-filter">
+      <option value="0">Все</option>
+      <option value="2">≥ 2.0</option>
+      <option value="3">≥ 3.0</option>
+      <option value="4">≥ 4.0</option>
+      <option value="5">≥ 5.0</option>
+    </select>
+
+    <div class="tabs">
+      <div class="tab-btn active" data-tab="24h">24 часа</div>
+      <div class="tab-btn" data-tab="7d">7 дней</div>
+      <div class="tab-btn" data-tab="30d">30 дней</div>
+    </div>
+
+    <div id="tab-24h" class="tab-content active">
+      <div id="table-24h"></div>
+      <div id="map-24h" class="map"></div>
+    </div>
+
+    <div id="tab-7d" class="tab-content">
+      <div id="table-7d"></div>
+      <div id="map-7d" class="map"></div>
+    </div>
+
+    <div id="tab-30d" class="tab-content">
+      <div id="table-30d"></div>
+      <div id="map-30d" class="map"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
