@@ -117,3 +117,28 @@
     white-space: nowrap !important;
   }
 }
+/* ====== ФИКС ТАБЛИЦЫ НА ТИЛЬДЕ (МОБИЛЬНЫЕ) ====== */
+@media (max-width: 768px) {
+
+  #eq-app table {
+    display: block !important;
+    width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    white-space: nowrap !important;
+    border-collapse: collapse !important;
+  }
+
+  #eq-app thead, 
+  #eq-app tbody, 
+  #eq-app tr {
+    display: table !important;
+    width: max-content !important;
+  }
+
+  #eq-app th, 
+  #eq-app td {
+    white-space: nowrap !important;
+    padding: 10px 14px !important;
+  }
+}
