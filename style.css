@@ -1,8 +1,9 @@
 /* ====== ГЛОБАЛЬНЫЙ ШРИФТ SF PRO ====== */
-
 * {
   font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont,
                "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ====== БАЗОВЫЙ СТИЛЬ ====== */
@@ -10,42 +11,45 @@
 body {
   margin: 0;
   padding: 0;
-  background: #f2f2f2;
-  color: #1a1a1a;
+  background: #f7f7f7;
+  color: #0f0f0f;
 }
 
 #eq-app {
   max-width: 900px;
   margin: 20px auto;
   background: #ffffff;
-  padding: 22px;
+  padding: 26px;
   border-radius: 14px;
-  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
 }
+
+/* ====== ЗАГОЛОВОК ====== */
 
 h2 {
   margin-top: 0;
-  font-size: 28px;
+  font-size: 30px;
   text-align: center;
-  color: #111;
-  font-weight: 700;
+  color: #0a0a0a;
+  font-weight: 800; /* SF Pro жирный */
+  letter-spacing: -0.3px;
 }
 
 /* ====== ФИЛЬТР ====== */
 
 label {
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 600;
-  color: #222;
+  color: #111;
 }
 
 select {
-  padding: 8px 12px;
-  font-size: 15px;
-  border-radius: 6px;
-  border: 1px solid #bbb;
-  margin-left: 6px;
+  padding: 10px 14px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: 1px solid #aaa;
   background: #fff;
+  color: #111;
 }
 
 /* ====== ВКЛАДКИ ====== */
@@ -53,49 +57,41 @@ select {
 .tabs {
   display: flex;
   gap: 10px;
-  margin: 18px 0;
+  margin: 20px 0;
 }
 
 .tab-btn {
   padding: 12px 18px;
-  background: #e0e0e0;
-  border-radius: 8px;
+  background: #e5e5e5;
+  border-radius: 10px;
   cursor: pointer;
   user-select: none;
   transition: 0.2s;
   font-weight: 600;
   text-align: center;
-  font-size: 16px;
-  color: #333;
+  font-size: 17px;
+  color: #222;
 }
 
 .tab-btn:hover {
-  background: #d0d0d0;
+  background: #d5d5d5;
 }
 
 /* Активный таб */
 .tab-btn.active {
   background-color: #058EAC !important;
   color: #ffffff !important;
-  border-color: #058EAC !important;
-}
-
-.tab-content {
-  display: none;
-}
-
-.tab-content.active {
-  display: block;
+  font-weight: 700 !important;
 }
 
 /* ====== КАРТА ====== */
 
 .map {
   width: 100%;
-  height: 430px;
+  height: 440px;
   border-radius: 12px;
   overflow: hidden;
-  margin-bottom: 18px;
+  margin-bottom: 20px;
 }
 
 /* ====== ТАБЛИЦА ====== */
@@ -103,21 +99,27 @@ select {
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 12px;
-  font-size: 16px;
+  margin-top: 14px;
+  font-size: 17px;
   color: #111;
 }
 
 th, td {
-  padding: 10px 12px;
-  border-bottom: 1px solid #d6d6d6;
+  padding: 12px 14px;
+  border-bottom: 1px solid #d0d0d0;
   text-align: left;
 }
 
 th {
-  background: #f0f0f0;
+  background: #f2f2f2;
   font-weight: 700;
-  font-size: 16px;
+  font-size: 17px;
+  color: #0f0f0f;
+}
+
+td {
+  font-weight: 500;
+  color: #1a1a1a;
 }
 
 /* ====== МОБИЛЬНАЯ АДАПТАЦИЯ ====== */
@@ -125,13 +127,13 @@ th {
 @media (max-width: 768px) {
 
   #eq-app {
-    padding: 14px;
+    padding: 16px;
     margin: 0;
     border-radius: 0;
   }
 
   h2 {
-    font-size: 24px;
+    font-size: 26px;
   }
 
   .tabs {
@@ -143,7 +145,7 @@ th {
   .tab-btn {
     flex: 1 1 30%;
     padding: 12px 0;
-    font-size: 15px;
+    font-size: 16px;
   }
 
   .map {
@@ -151,29 +153,29 @@ th {
   }
 
   table {
-    font-size: 15px;
+    font-size: 16px;
     display: block;
     overflow-x: auto;
     white-space: nowrap;
   }
 
   th, td {
-    padding: 9px;
+    padding: 10px;
   }
 }
 
-/* ====== СУПЕР-МОБИЛЬНАЯ АДАПТАЦИЯ (320–420px) ====== */
+/* ====== СУПЕР-МОБИЛЬНАЯ АДАПТАЦИЯ ====== */
 
 @media (max-width: 420px) {
 
   h2 {
-    font-size: 21px;
+    font-size: 23px;
   }
 
   .tab-btn {
     flex: 1 1 100%;
     padding: 12px 0;
-    font-size: 14px;
+    font-size: 15px;
   }
 
   .map {
@@ -181,11 +183,11 @@ th {
   }
 
   table {
-    font-size: 14px;
+    font-size: 15px;
   }
 
   th, td {
-    padding: 8px;
+    padding: 9px;
   }
 }
 
@@ -233,9 +235,11 @@ th {
 
   th {
     background: #333;
+    color: #fff;
   }
 
   td {
     border-bottom: 1px solid #444;
+    color: #eaeaea;
   }
 }
