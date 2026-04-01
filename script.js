@@ -1,8 +1,8 @@
 const BBOX = {
-  minlat: 20,
-  maxlat: 60,
-  minlon: 40,
-  maxlon: 110
+  minlat: 35,
+  maxlat: 56,
+  minlon: 46,
+  maxlon: 95
 };
 
 const REFRESH_MINUTES = 10;
@@ -50,40 +50,6 @@ function toKZTime(utcMs) {
   return d.toISOString().replace("T", " ").replace("Z", "");
 }
 
-// Карта (без кластеризации — как в рабочем варианте)
-function renderMap(containerId, events) {
-  const map = L.map(containerId).setView([48, 68], 4);
-
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
-
-  // Кластеризация
-  const cluster = L.markerClusterGroup();
-
-  events.forEach(f => {
-    const p = f.properties;
-    const c = f.geometry.coordinates;
-    const lat = c[1], lon = c[0];
-
-    const marker = L.circleMarker([lat, lon], {
-      radius: Math.max(4, p.mag * 1.5),
-      color: "#d9534f",
-      fillColor: "#d9534f",
-      fillOpacity: 0.7
-    });
-
-    marker.bindPopup(`
-      <b>Магнитуда:</b> ${p.mag}<br>
-      <b>Дата (KZ):</b> ${toKZTime(p.time)}<br>
-      <b>Глубина:</b> ${c[2]} км<br>
-      <b>Координаты:</b> ${lat}, ${lon}<br>
-      <b>Место:</b> ${p.place}
-    `);
-
-    cluster.addLayer(marker);
-  });
-
-  map.addLayer(cluster);
-}
 // Таблица
 function renderTable(containerId, events) {
   let html = `
@@ -119,6 +85,42 @@ function renderTable(containerId, events) {
 
   html += "</tbody></table>";
   document.getElementById(containerId).innerHTML = html;
+}
+
+// Карта (без кластеризации — как в рабочем варианте)
+function renderMap(containerId, events) {
+  const map = L.map(containerId).setView([48, 68], 4);
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+
+  const layer = L.layerGroup().addTo(map);
+  const bounds = [];
+
+  events.forEach(f => {
+    const p = f.properties;
+    const c = f.geometry.coordinates;
+    const lat = c[1], lon = c[0];
+
+    const marker = L.circleMarker([lat, lon], {
+      radius: Math.max(4, p.mag * 1.5),
+      color: "#d9534f",
+      fillColor: "#d9534f",
+      fillOpacity: 0.7
+    });
+
+    marker.bindPopup(`
+      <b>Магнитуда:</b> ${p.mag}<br>
+      <b>Дата (KZ):</b> ${toKZTime(p.time)}<br>
+      <b>Глубина:</b> ${c[2]} км<br>
+      <b>Координаты:</b> ${lat}, ${lon}<br>
+      <b>Место:</b> ${p.place}
+    `);
+
+    marker.addTo(layer);
+    bounds.push([lat, lon]);
+  });
+
+  if (bounds.length) map.fitBounds(bounds, { padding: [20, 20] });
 }
 
 // Обновление (сначала карта → потом таблица)
