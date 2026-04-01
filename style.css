@@ -1,25 +1,53 @@
+/* ====== БАЗОВЫЙ СТИЛЬ ====== */
+
 body {
   font-family: Arial, sans-serif;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
+  margin: 0;
+  padding: 0;
+  background: #f5f5f5;
 }
+
+#eq-app {
+  max-width: 900px;
+  margin: 20px auto;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+h2 {
+  margin-top: 0;
+  font-size: 26px;
+  text-align: center;
+  color: #333;
+}
+
+/* ====== ВКЛАДКИ ====== */
 
 .tabs {
   display: flex;
   gap: 10px;
-  margin: 20px 0;
+  margin: 15px 0;
 }
 
 .tab-btn {
-  padding: 8px 16px;
-  background: #eee;
-  border-radius: 6px;
+  padding: 10px 16px;
+  background: #ddd;
+  border-radius: 8px;
   cursor: pointer;
+  user-select: none;
+  transition: 0.2s;
+  font-weight: 600;
+  text-align: center;
+}
+
+.tab-btn:hover {
+  background: #ccc;
 }
 
 .tab-btn.active {
-  background: #4285f4;
+  background: #d9534f;
   color: white;
 }
 
@@ -31,23 +59,138 @@ body {
   display: block;
 }
 
+/* ====== КАРТА ====== */
+
 .map {
   width: 100%;
-  height: 400px;
+  height: 420px;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 15px;
 }
+
+/* ====== ТАБЛИЦА ====== */
 
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 15px;
+  margin-top: 10px;
+  font-size: 14px;
 }
 
-table th, table td {
-  border: 1px solid #ccc;
-  padding: 6px;
+th, td {
+  padding: 8px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
 }
 
-table th {
-  background: #f0f0f0;
-  cursor: pointer;
+th {
+  background: #eee;
+  font-weight: bold;
+}
+
+/* ====== МОБИЛЬНАЯ АДАПТАЦИЯ ====== */
+
+@media (max-width: 768px) {
+
+  #eq-app {
+    padding: 12px;
+    margin: 0;
+    border-radius: 0;
+  }
+
+  h2 {
+    font-size: 22px;
+  }
+
+  .tabs {
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+  }
+
+  .tab-btn {
+    flex: 1 1 30%;
+    padding: 10px 0;
+    font-size: 14px;
+  }
+
+  .map {
+    height: 320px;
+  }
+
+  table {
+    font-size: 12px;
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  th, td {
+    padding: 6px;
+  }
+}
+
+/* ====== СУПЕР-МОБИЛЬНАЯ АДАПТАЦИЯ (320–420px) ====== */
+
+@media (max-width: 420px) {
+
+  h2 {
+    font-size: 19px;
+  }
+
+  .tab-btn {
+    flex: 1 1 100%;
+    padding: 9px 0;
+    font-size: 13px;
+  }
+
+  .map {
+    height: 260px;
+  }
+
+  table {
+    font-size: 11px;
+  }
+}
+
+/* ====== ТЁМНАЯ ТЕМА (автоматически по системе) ====== */
+
+@media (prefers-color-scheme: dark) {
+
+  body {
+    background: #1b1b1b;
+    color: #eee;
+  }
+
+  #eq-app {
+    background: #2a2a2a;
+    box-shadow: none;
+  }
+
+  h2 {
+    color: #fff;
+  }
+
+  .tab-btn {
+    background: #444;
+    color: #ddd;
+  }
+
+  .tab-btn.active {
+    background: #d9534f;
+    color: white;
+  }
+
+  table {
+    color: #eee;
+  }
+
+  th {
+    background: #444;
+  }
+
+  td {
+    border-bottom: 1px solid #555;
+  }
 }
