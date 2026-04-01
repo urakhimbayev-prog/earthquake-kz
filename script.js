@@ -2,21 +2,23 @@ const BBOX = { minlat: 40, maxlat: 56, minlon: 46, maxlon: 88 };
 const REFRESH_MINUTES = 10;
 const TIME_OFFSET = 6;
 
-function buildUrl(days) {
+function buildUrl(days, minMag) {
   const now = new Date();
-  const end = now.toISOString(); // правильный формат
-  const start = new Date(now.getTime() - days * 86400000).toISOString();
+  const end = now.toISOString().split('.')[0] + "Z"; // без миллисекунд
+  const start = new Date(now.getTime() - days * 86400000)
+    .toISOString()
+    .split('.')[0] + "Z";
 
   return "https://service.earthscope.org/fdsnws/event/1/query?" +
     new URLSearchParams({
       format: "geojson",
       starttime: start,
       endtime: end,
-      minlat: BBOX.minlat,
-      maxlat: BBOX.maxlat,
-      minlon: BBOX.minlon,
-      maxlon: BBOX.maxlon,
-      minmagnitude: "1"
+      minlat: 40,
+      maxlat: 56,
+      minlon: 46,
+      maxlon: 88,
+      minmagnitude: minMag
     });
 }
 
