@@ -5,12 +5,9 @@
   <title>Сейсмическая активность Казахстана</title>
 
   <link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
-<script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
-  <!-- Leaflet -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link href="https://unpkg.com/maplibre-gl@3.6.1/dist/maplibre-gl.css" rel="stylesheet" />
+<script src="https://unpkg.com/maplibre-gl@3.6.1/dist/maplibre-gl.js"></script>
+  
 </head>
 
 <body>
@@ -32,21 +29,20 @@
       <div class="tab-btn" data-tab="30d">30 дней</div>
     </div>
 
-    <div id="tab-24h" class="tab-content active">
-     <div id="map-24h" class="map"></div>
-      <div id="table-24h"></div>
-      
-    </div>
+  <div id="tab-24h" class="tab-content active">
+  <div id="map-24h" class="map"></div>
+  <div id="table-24h"></div>
+</div>
 
-    <div id="tab-7d" class="tab-content">
-       <div id="map-7d" class="map"></div>
-      <div id="table-7d"></div>
-     
-    </div>
+<div id="tab-7d" class="tab-content">
+  <div id="map-7d" class="map"></div>
+  <div id="table-7d"></div>
+</div>
 
-    <div id="tab-30d" class="tab-content">
-      <div id="map-30d" class="map"></div>
-      <div id="table-30d"></div>
+<div id="tab-30d" class="tab-content">
+  <div id="map-30d" class="map"></div>
+  <div id="table-30d"></div>
+</div>
       
     </div>
   </div>
