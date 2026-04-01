@@ -2,9 +2,10 @@ const BBOX = { minlat: 40, maxlat: 56, minlon: 46, maxlon: 88 };
 const REFRESH_MINUTES = 10;
 const TIME_OFFSET = 6;
 
+// Формирование корректного URL
 function buildUrl(days, minMag) {
   const now = new Date();
-  const end = now.toISOString().split('.')[0] + "Z"; // без миллисекунд
+  const end = now.toISOString().split('.')[0] + "Z";
   const start = new Date(now.getTime() - days * 86400000)
     .toISOString()
     .split('.')[0] + "Z";
@@ -14,14 +15,15 @@ function buildUrl(days, minMag) {
       format: "geojson",
       starttime: start,
       endtime: end,
-      minlat: 40,
-      maxlat: 56,
-      minlon: 46,
-      maxlon: 88,
+      minlat: BBOX.minlat,
+      maxlat: BBOX.maxlat,
+      minlon: BBOX.minlon,
+      maxlon: BBOX.maxlon,
       minmagnitude: minMag
     });
 }
 
+// Загрузка данных
 async function loadData(days, minMag) {
   const url = buildUrl(days, minMag);
 
@@ -29,17 +31,19 @@ async function loadData(days, minMag) {
 
   if (!response.ok) {
     console.error("API error:", await response.text());
-    return null;
+    return [];
   }
 
   return response.json();
 }
 
+// Перевод времени в KZ
 function toKZTime(utcMs) {
   const d = new Date(utcMs + TIME_OFFSET * 3600000);
   return d.toISOString().replace("T", " ").replace("Z", "");
 }
 
+// Таблица
 function renderTable(containerId, events) {
   let html = `
     <table>
@@ -76,6 +80,7 @@ function renderTable(containerId, events) {
   document.getElementById(containerId).innerHTML = html;
 }
 
+// Карта
 function renderMap(containerId, events) {
   const map = L.map(containerId).setView([48, 68], 4);
 
@@ -111,13 +116,14 @@ function renderMap(containerId, events) {
   if (bounds.length) map.fitBounds(bounds, { padding: [20, 20] });
 }
 
+// Обновление всех вкладок
 async function updateAll() {
   const magMin = parseFloat(document.getElementById("mag-filter").value);
 
-const data24 = (await loadData(1, magMin) || []).filter(...);
-const data7  = (await loadData(7, magMin) || []).filter(...);
-const data30 = (await loadData(30, magMin) || []).filter(...);
-  
+  const data24 = (await loadData(1, magMin)).filter(f => f.properties.mag >= magMin);
+  const data7  = (await loadData(7, magMin)).filter(f => f.properties.mag >= magMin);
+  const data30 = (await loadData(30, magMin)).filter(f => f.properties.mag >= magMin);
+
   renderTable("table-24h", data24);
   renderTable("table-7d", data7);
   renderTable("table-30d", data30);
@@ -127,6 +133,7 @@ const data30 = (await loadData(30, magMin) || []).filter(...);
   renderMap("map-30d", data30);
 }
 
+// Переключение вкладок
 document.querySelectorAll(".tab-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
@@ -137,8 +144,11 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
   });
 });
 
+// Фильтр
 document.getElementById("mag-filter").addEventListener("change", updateAll);
 
+// Автообновление
 setInterval(updateAll, REFRESH_MINUTES * 60000);
 
+// Первый запуск
 updateAll();
