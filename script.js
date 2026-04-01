@@ -87,70 +87,93 @@ function renderMap(containerId, events) {
   const container = document.getElementById(containerId);
   container.innerHTML = "";
 
-  const map = new maplibregl.Map({
-    container: containerId,
-    style: "https://tiles.stadiamaps.com/styles/osm_bright.json",
-    center: [70, 40],
-    zoom: 3
-  });
+  // Создаём карту Leaflet
+  const map = L.map(containerId).setView([45, 70], 4);
 
-  map.on("load", () => {
-    map.resize();
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 18
+  }).addTo(map);
 
-    // Источник без кластеризации
-    map.addSource("eq", {
-      type: "geojson",
-      data: {
-        type: "FeatureCollection",
-        features: events.map(f => ({
-          type: "Feature",
-          geometry: f.geometry,
-          properties: {
-            mag: f.properties.mag,
-            place: f.properties.place,
-            time: f.properties.time,
-            depth: f.geometry.coordinates[2]
-          }
-        }))
-      }
-    });
+  // Преобразуем события в GeoJSON
+  const geojson = events.map(f => ({
+    type: "Feature",
+    geometry: f.geometry,
+    properties: {
+      mag: f.properties.mag,
+      place: f.properties.place,
+      time: f.properties.time,
+      depth: f.geometry.coordinates[2]
+    }
+  }));
 
-    // Обычные точки
-    map.addLayer({
-      id: "eq-points",
-      type: "circle",
-      source: "eq",
-      paint: {
-        "circle-color": "#d9534f",
-        "circle-radius": [
-          "interpolate",
-          ["linear"],
-          ["get", "mag"],
-          0, 4,
-          5, 10
-        ],
-        "circle-opacity": 0.8
-      }
-    });
+  // Создаём кластеризатор
+  const index = new Supercluster({
+    radius: 60,
+    maxZoom: 16
+  }).load(geojson);
 
-    // Popup
-    map.on("click", "eq-points", e => {
-      const f = e.features[0];
-      const p = f.properties;
-      const c = f.geometry.coordinates;
+  // Функция рендера кластеров и точек
+  function renderClusters() {
+    const bounds = map.getBounds();
+    const zoom = map.getZoom();
 
-      new maplibregl.Popup()
-        .setLngLat(c)
-        .setHTML(`
+    const clusters = index.getClusters(
+      [bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()],
+      zoom
+    );
+
+    layerGroup.clearLayers();
+
+    clusters.forEach(c => {
+      const [lng, lat] = c.geometry.coordinates;
+
+      if (c.properties.cluster) {
+        // Кластер
+        const count = c.properties.point_count;
+
+        const marker = L.circleMarker([lat, lng], {
+          radius: 12,
+          color: "#d9534f",
+          fillColor: "#d9534f",
+          fillOpacity: 0.7
+        }).bindTooltip(`${count} событий`);
+
+        marker.on("click", () => {
+          const expansionZoom = index.getClusterExpansionZoom(c.id);
+          map.setView([lat, lng], expansionZoom);
+        });
+
+        layerGroup.addLayer(marker);
+      } else {
+        // Одиночная точка
+        const p = c.properties;
+
+        const marker = L.circleMarker([lat, lng], {
+          radius: Math.max(4, p.mag * 1.5),
+          color: "#d9534f",
+          fillColor: "#d9534f",
+          fillOpacity: 0.8
+        });
+
+        marker.bindPopup(`
           <b>Магнитуда:</b> ${p.mag}<br>
           <b>Дата (KZ):</b> ${toKZTime(p.time)}<br>
           <b>Глубина:</b> ${p.depth} км<br>
-          <b>Координаты:</b> ${c[1]}, ${c[0]}<br>
           <b>Место:</b> ${p.place}
-        `)
-        .addTo(map);
+        `);
+
+        layerGroup.addLayer(marker);
+      }
     });
-  });
+  }
+
+  const layerGroup = L.layerGroup().addTo(map);
+
+  // Рендерим кластеры при каждом движении карты
+  map.on("moveend", renderClusters);
+
+  // Первый рендер
+  renderClusters();
 }
 
 // Обновление
