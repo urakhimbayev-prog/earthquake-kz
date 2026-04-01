@@ -100,14 +100,23 @@ function renderMap(containerId, events) {
     map.resize(); // критично для вкладок
 
     map.addSource("eq", {
-      type: "geojson",
-      data: {
-        type: "FeatureCollection",
-        features: events
-      },
-      cluster: true,
-      clusterRadius: 50
-    });
+  type: "geojson",
+  data: {
+    type: "FeatureCollection",
+    features: events.map(f => ({
+      type: "Feature",
+      geometry: f.geometry,
+      properties: {
+        mag: f.properties.mag,
+        place: f.properties.place,
+        time: f.properties.time,
+        depth: f.geometry.coordinates[2]
+      }
+    }))
+  },
+  cluster: true,
+  clusterRadius: 50
+});
 
     map.addLayer({
       id: "clusters",
