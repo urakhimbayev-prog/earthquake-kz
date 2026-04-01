@@ -4,9 +4,8 @@ const TIME_OFFSET = 6;
 
 function buildUrl(days) {
   const now = new Date();
-  const end = now.toISOString().split('.')[0];
-  const start = new Date(now.getTime() - days * 86400000)
-    .toISOString().split('.')[0];
+  const end = now.toISOString(); // правильный формат
+  const start = new Date(now.getTime() - days * 86400000).toISOString();
 
   return "https://service.earthscope.org/fdsnws/event/1/query?" +
     new URLSearchParams({
@@ -17,7 +16,7 @@ function buildUrl(days) {
       maxlat: BBOX.maxlat,
       minlon: BBOX.minlon,
       maxlon: BBOX.maxlon,
-      minmagnitude: "1.0"
+      minmagnitude: "1"
     });
 }
 
