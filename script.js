@@ -84,14 +84,21 @@ function renderTable(containerId, events) {
 
 // Карта MapLibre
 function renderMap(containerId, events) {
+  const container = document.getElementById(containerId);
+
+  // ВАЖНО: очистить контейнер перед созданием карты
+  container.innerHTML = "";
+
   const map = new maplibregl.Map({
     container: containerId,
-    style: "https://demotiles.maplibre.org/style.json",
+    style: "https://tiles.stadiamaps.com/styles/osm_bright.json",
     center: [70, 40],
     zoom: 3
   });
 
   map.on("load", () => {
+    map.resize(); // критично для вкладок
+
     map.addSource("eq", {
       type: "geojson",
       data: {
@@ -102,7 +109,6 @@ function renderMap(containerId, events) {
       clusterRadius: 50
     });
 
-    // Кластеры
     map.addLayer({
       id: "clusters",
       type: "circle",
@@ -114,7 +120,6 @@ function renderMap(containerId, events) {
       }
     });
 
-    // Число в кластере
     map.addLayer({
       id: "cluster-count",
       type: "symbol",
@@ -126,7 +131,6 @@ function renderMap(containerId, events) {
       }
     });
 
-    // Одиночные точки
     map.addLayer({
       id: "unclustered",
       type: "circle",
@@ -138,7 +142,6 @@ function renderMap(containerId, events) {
       }
     });
 
-    // Popup
     map.on("click", "unclustered", e => {
       const f = e.features[0];
       const p = f.properties;
