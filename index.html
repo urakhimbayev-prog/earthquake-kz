@@ -4,10 +4,84 @@
   <meta charset="UTF-8">
   <title>Сейсмическая активность Казахстана</title>
 
+  <!-- Стили -->
   <link rel="stylesheet" href="style.css">
-<link href="https://unpkg.com/maplibre-gl@3.6.1/dist/maplibre-gl.css" rel="stylesheet" />
-<script src="https://unpkg.com/maplibre-gl@3.6.1/dist/maplibre-gl.js"></script>
-  
+
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Supercluster -->
+  <script src="https://unpkg.com/supercluster@7.1.5/dist/supercluster.min.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f5f5f5;
+    }
+
+    #eq-app {
+      max-width: 900px;
+      margin: 20px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+    }
+
+    .map {
+      width: 100%;
+      height: 400px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin: 15px 0;
+    }
+
+    .tab-btn {
+      padding: 8px 14px;
+      background: #ddd;
+      border-radius: 6px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .tab-btn.active {
+      background: #d9534f;
+      color: white;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+
+    th, td {
+      padding: 6px;
+      border-bottom: 1px solid #ccc;
+      text-align: left;
+    }
+
+    th {
+      background: #eee;
+    }
+  </style>
 </head>
 
 <body>
@@ -29,21 +103,22 @@
       <div class="tab-btn" data-tab="30d">30 дней</div>
     </div>
 
-  <div id="tab-24h" class="tab-content active">
-  <div id="map-24h" class="map"></div>
-  <div id="table-24h"></div>
-</div>
+    <!-- 24 часа -->
+    <div id="tab-24h" class="tab-content active">
+      <div id="map-24h" class="map"></div>
+      <div id="table-24h"></div>
+    </div>
 
-<div id="tab-7d" class="tab-content">
-  <div id="map-7d" class="map"></div>
-  <div id="table-7d"></div>
-</div>
+    <!-- 7 дней -->
+    <div id="tab-7d" class="tab-content">
+      <div id="map-7d" class="map"></div>
+      <div id="table-7d"></div>
+    </div>
 
-<div id="tab-30d" class="tab-content">
-  <div id="map-30d" class="map"></div>
-  <div id="table-30d"></div>
-</div>
-      
+    <!-- 30 дней -->
+    <div id="tab-30d" class="tab-content">
+      <div id="map-30d" class="map"></div>
+      <div id="table-30d"></div>
     </div>
   </div>
 
