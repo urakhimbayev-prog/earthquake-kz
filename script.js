@@ -228,12 +228,17 @@ document.querySelectorAll(".tab-btn").forEach(btn => {
     document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
 
     btn.classList.add("active");
-    document.getElementById("tab-" + tab).classList.add("active");
+    const activeTab = document.getElementById("tab-" + tab);
+    activeTab.classList.add("active");
 
-    const state = maps[tab];
-    if (state && state.index) {
-      updateClusters(state);
-    }
+    // ВАЖНО: пересчитать карту после показа вкладки
+    setTimeout(() => {
+      const state = maps[tab];
+      if (state && state.map) {
+        state.map.invalidateSize();   // ← вот это фиксит проблему
+        updateClusters(state);        // ← перерисовать кластеры
+      }
+    }, 50);
   });
 });
 
