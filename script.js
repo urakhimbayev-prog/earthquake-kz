@@ -56,8 +56,8 @@ function renderMap(containerId, events) {
 
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
 
-  const layer = L.layerGroup().addTo(map);
-  const bounds = [];
+  // Кластеризация
+  const cluster = L.markerClusterGroup();
 
   events.forEach(f => {
     const p = f.properties;
@@ -79,11 +79,10 @@ function renderMap(containerId, events) {
       <b>Место:</b> ${p.place}
     `);
 
-    marker.addTo(layer);
-    bounds.push([lat, lon]);
+    cluster.addLayer(marker);
   });
 
-  if (bounds.length) map.fitBounds(bounds, { padding: [20, 20] });
+  map.addLayer(cluster);
 }
 // Таблица
 function renderTable(containerId, events) {
