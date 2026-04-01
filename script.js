@@ -22,10 +22,17 @@ function buildUrl(days, minMag) {
     });
 }
 
-async function loadData(days) {
-  const resp = await fetch(buildUrl(days));
-  const data = await resp.json();
-  return data.features || [];
+async function loadData(days, minMag) {
+  const url = buildUrl(days, minMag);
+
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    console.error("API error:", await response.text());
+    return null;
+  }
+
+  return response.json();
 }
 
 function toKZTime(utcMs) {
