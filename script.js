@@ -114,10 +114,10 @@ function renderMap(containerId, events) {
 async function updateAll() {
   const magMin = parseFloat(document.getElementById("mag-filter").value);
 
-const data24 = (await loadData(1, magMin)).filter(f => f.properties.mag >= magMin);
-const data7  = (await loadData(7, magMin)).filter(f => f.properties.mag >= magMin);
-const data30 = (await loadData(30, magMin)).filter(f => f.properties.mag >= magMin);
-
+const data24 = (await loadData(1, magMin) || []).filter(...);
+const data7  = (await loadData(7, magMin) || []).filter(...);
+const data30 = (await loadData(30, magMin) || []).filter(...);
+  
   renderTable("table-24h", data24);
   renderTable("table-7d", data7);
   renderTable("table-30d", data30);
