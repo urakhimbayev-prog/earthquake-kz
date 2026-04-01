@@ -2,7 +2,7 @@ const BBOX = { minlat: 40, maxlat: 56, minlon: 46, maxlon: 88 };
 const REFRESH_MINUTES = 10;
 const TIME_OFFSET = 6;
 
-// Формирование корректного URL
+// Формирование URL для QuakeML
 function buildUrl(days, minMag) {
   const now = new Date();
   const end = now.toISOString().split('.')[0] + "Z";
@@ -12,7 +12,7 @@ function buildUrl(days, minMag) {
 
   return "https://service.earthscope.org/fdsnws/event/1/query?" +
     new URLSearchParams({
-      format: "geojson",
+      format: "quakeml",
       starttime: start,
       endtime: end,
       minlat: BBOX.minlat,
@@ -23,24 +23,44 @@ function buildUrl(days, minMag) {
     });
 }
 
+// Парсер QuakeML → JSON
+function parseQuakeML(xmlText) {
+  const xml = new DOMParser().parseFromString(xmlText, "text/xml");
+  const events = [...xml.getElementsByTagName("event")];
+
+  return events.map(ev => {
+    const get = (tag) => ev.getElementsByTagName(tag)[0]?.textContent || null;
+
+    return {
+      time: get("value"), // время
+      lat: parseFloat(get("latitude")),
+      lon: parseFloat(get("longitude")),
+      depth: parseFloat(get("depth")) / 1000, // метры → км
+      mag: parseFloat(get("mag")),
+      place: get("text")
+    };
+  }).filter(e => e.time && e.lat && e.lon);
+}
+
 // Загрузка данных
 async function loadData(days, minMag) {
   const url = buildUrl(days, minMag);
 
   const response = await fetch(url);
-
   if (!response.ok) {
     console.error("API error:", await response.text());
     return [];
   }
 
-  return response.json();
+  const xmlText = await response.text();
+  return parseQuakeML(xmlText);
 }
 
 // Перевод времени в KZ
-function toKZTime(utcMs) {
-  const d = new Date(utcMs + TIME_OFFSET * 3600000);
-  return d.toISOString().replace("T", " ").replace("Z", "");
+function toKZTime(iso) {
+  const d = new Date(iso);
+  const shifted = new Date(d.getTime() + TIME_OFFSET * 3600000);
+  return shifted.toISOString().replace("T", " ").replace("Z", "");
 }
 
 // Таблица
@@ -60,18 +80,15 @@ function renderTable(containerId, events) {
       <tbody>
   `;
 
-  events.forEach(f => {
-    const p = f.properties;
-    const c = f.geometry.coordinates;
-
+  events.forEach(e => {
     html += `
       <tr>
-        <td>${toKZTime(p.time)}</td>
-        <td>${p.mag?.toFixed(1) || ""}</td>
-        <td>${c[2]?.toFixed(1) || ""}</td>
-        <td>${c[1]?.toFixed(3) || ""}</td>
-        <td>${c[0]?.toFixed(3) || ""}</td>
-        <td>${p.place || ""}</td>
+        <td>${toKZTime(e.time)}</td>
+        <td>${e.mag?.toFixed(1) || ""}</td>
+        <td>${e.depth?.toFixed(1) || ""}</td>
+        <td>${e.lat?.toFixed(3) || ""}</td>
+        <td>${e.lon?.toFixed(3) || ""}</td>
+        <td>${e.place || ""}</td>
       </tr>
     `;
   });
@@ -89,40 +106,36 @@ function renderMap(containerId, events) {
   const layer = L.layerGroup().addTo(map);
   const bounds = [];
 
-  events.forEach(f => {
-    const p = f.properties;
-    const c = f.geometry.coordinates;
-    const lat = c[1], lon = c[0];
-
-    const marker = L.circleMarker([lat, lon], {
-      radius: Math.max(4, p.mag * 1.5),
+  events.forEach(e => {
+    const marker = L.circleMarker([e.lat, e.lon], {
+      radius: Math.max(4, e.mag * 1.5),
       color: "#d9534f",
       fillColor: "#d9534f",
       fillOpacity: 0.7
     });
 
     marker.bindPopup(`
-      <b>Магнитуда:</b> ${p.mag}<br>
-      <b>Дата (KZ):</b> ${toKZTime(p.time)}<br>
-      <b>Глубина:</b> ${c[2]} км<br>
-      <b>Координаты:</b> ${lat}, ${lon}<br>
-      <b>Место:</b> ${p.place}
+      <b>Магнитуда:</b> ${e.mag}<br>
+      <b>Дата (KZ):</b> ${toKZTime(e.time)}<br>
+      <b>Глубина:</b> ${e.depth} км<br>
+      <b>Координаты:</b> ${e.lat}, ${e.lon}<br>
+      <b>Место:</b> ${e.place}
     `);
 
     marker.addTo(layer);
-    bounds.push([lat, lon]);
+    bounds.push([e.lat, e.lon]);
   });
 
   if (bounds.length) map.fitBounds(bounds, { padding: [20, 20] });
 }
 
-// Обновление всех вкладок
+// Обновление
 async function updateAll() {
   const magMin = parseFloat(document.getElementById("mag-filter").value);
 
-  const data24 = (await loadData(1, magMin)).filter(f => f.properties.mag >= magMin);
-  const data7  = (await loadData(7, magMin)).filter(f => f.properties.mag >= magMin);
-  const data30 = (await loadData(30, magMin)).filter(f => f.properties.mag >= magMin);
+  const data24 = (await loadData(1, magMin)).filter(e => e.mag >= magMin);
+  const data7  = (await loadData(7, magMin)).filter(e => e.mag >= magMin);
+  const data30 = (await loadData(30, magMin)).filter(e => e.mag >= magMin);
 
   renderTable("table-24h", data24);
   renderTable("table-7d", data7);
@@ -133,7 +146,7 @@ async function updateAll() {
   renderMap("map-30d", data30);
 }
 
-// Переключение вкладок
+// Вкладки
 document.querySelectorAll(".tab-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
